@@ -1,0 +1,9 @@
+server:
+  port: 8130
+spring:
+  application:
+    name: service-reptile
+  cloud:
+    nacos:
+      discovery:
+        server-addr: work.wlwl:8848

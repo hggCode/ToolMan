@@ -1,0 +1,9 @@
+server:
+  port: 8140
+spring:
+  application:
+    name: service-statistics
+  cloud:
+    nacos:
+      discovery:
+        server-addr: work.wlwl:8848

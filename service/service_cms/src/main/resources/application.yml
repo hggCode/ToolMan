@@ -1,0 +1,9 @@
+server:
+  port: 8110
+spring:
+  application:
+    name: service-cms
+  cloud:
+    nacos:
+      discovery:
+        server-addr: work.wlwl:8848
