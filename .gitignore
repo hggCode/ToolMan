@@ -1,0 +1,3 @@
+# Project exclude paths
+/common/service_base/target/
+/infrastructure/api_gateway/target/
