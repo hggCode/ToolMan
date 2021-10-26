@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: service_oss
+  cloud:
+    nacos:
+      config:
+        server-addr: 106.52.64.84:8848
+        file-extension: yaml
