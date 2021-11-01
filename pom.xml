@@ -32,6 +32,7 @@
         <jwt.version>0.7.0</jwt.version>
         <spring-cloud.version>2020.0.3</spring-cloud.version>
         <spring-cloud-Alibaba.version>2021.1</spring-cloud-Alibaba.version>
+        <aliyunOss.version>3.10.2</aliyunOss.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -64,6 +65,12 @@
                 <version>${swagger.version}</version>
             </dependency>
 
+<!--            aliyunOss-->
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyunOss.version}</version>
+            </dependency>
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-http</artifactId>

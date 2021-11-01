@@ -7,5 +7,7 @@ spring:
         server-addr: wlwl.work:8848 # nacos服务地址
         file-extension: yaml
         extension-configs:
-          - data-id: RedisFeignNacos.yaml
+          - data-id: mysql.yaml
+            refresh: true
+          - data-id: reptile.yaml
             refresh: true

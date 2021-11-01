@@ -6,4 +6,4 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: work.wlwl:8848
+        server-addr: wlwl.work:8848

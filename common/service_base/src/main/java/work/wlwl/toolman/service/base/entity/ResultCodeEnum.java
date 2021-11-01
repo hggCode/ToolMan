@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 public enum ResultCodeEnum {
 
-    SUCCESS(true, 20000,"成功"),
+    SUCCESS(true, 20000, "成功"),
     UNKNOWN_REASON(false, 20001, "未知错误"),
 
     BAD_SQL_GRAMMAR(false, 21001, "sql语法错误"),
@@ -42,7 +42,9 @@ public enum ResultCodeEnum {
     LOGIN_AUTH(false, 28004, "需要登录"),
     LOGIN_ACL(false, 28005, "没有权限"),
     SMS_SEND_ERROR(false, 28006, "短信发送失败"),
-    SMS_SEND_ERROR_BUSINESS_LIMIT_CONTROL(false, 28007, "短信发送过于频繁");
+    SMS_SEND_ERROR_BUSINESS_LIMIT_CONTROL(false, 28007, "短信发送过于频繁"),
+
+    JD_CONNECT_ERROR(false, 30000, "被京东嘎嘎拉黑了");
 
 
     private Boolean success;

@@ -1,21 +1,16 @@
-package work.wlwl.toolman.service.statistics;
+package work.wlwl.toolman.service.reptile;
 
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @ComponentScan({"work.wlwl.toolman"})
 @EnableDiscoveryClient
-@EnableFeignClients
-//  开启定时任务
-@EnableScheduling
-public class ServiceStatisticsApplication {
+public class ServiceReptileApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ServiceStatisticsApplication.class, args);
+        SpringApplication.run(ServiceReptileApplication.class, args);
     }
 }

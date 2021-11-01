@@ -17,6 +17,7 @@
         <module>service_cms</module>
         <module>service_oss</module>
         <module>service_reptile</module>
+        <module>service_tm</module>
     </modules>
 
     <properties>
