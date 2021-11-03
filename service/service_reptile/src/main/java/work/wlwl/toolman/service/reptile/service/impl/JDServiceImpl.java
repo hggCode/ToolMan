@@ -219,60 +219,71 @@ public class JDServiceImpl implements JDService {
         List<Product> list = productService.list(queryWrapper);
         for (Product product : list) {
             try {
-                TimeUnit.MILLISECONDS.sleep(500);
+                TimeUnit.MILLISECONDS.sleep(3000);
+
+                String sku = product.getMainSku();
+
+                Document pares = JsoupUtils.parse(reptileUrl.getItemUrl() + sku + ".html");
+                Elements e = pares.select(".Ptable");
+                Element load = pares.select(".iloading").first();
+                while (load != null) {
+                    pares = JsoupUtils.parse(reptileUrl.getItemUrl() + sku + ".html");
+                    load = pares.select(".iloading").first();
+                    System.out.println("正在重新尝试" + sku);
+
+                    TimeUnit.MILLISECONDS.sleep(3000);
+
+                }
+
+                if (e.first() == null) {
+                    System.out.println(pares);
+                    log.error(brand.getId());
+                    throw new GlobalException(ResultCodeEnum.JD_CONNECT_ERROR);
+                }
+                Elements elements = e.select(".Ptable-item");
+                Map<String, String> map = new HashMap<>();
+                Property property = new Property();
+                for (Element element : elements) {
+                    String h3 = element.select("h3").text().trim();
+                    String dl = element.select("dl").text().trim();
+                    if ("前置摄像头".equals(h3) || "后置摄像头".equals(h3) || "主芯片".equals(h3)) {
+                        map.put(h3, dl);
+                    } else {
+                        Elements select = element.select(".clearfix");
+                        for (Element element1 : select) {
+                            element1.select("p").remove();
+                            String dt = element1.select("dt").text().trim();
+                            String dd = element1.select("dd").text().trim();
+                            map.put(dt, dd);
+                        }
+                    }
+                }
+                property.setName(map.get("产品名称"));
+                property.setWeight(map.get("机身重量（g）"));
+                String initDate = map.get("上市年份") + map.get("上市月份") + map.get("首销日期");
+                property.setInitDate(initDate);
+                property.setScreenSize(map.get("主屏幕尺寸"));
+                property.setDisplayRefresh(map.get("屏幕刷新率"));
+                property.setScreenType(map.get("屏幕材质类型"));
+                property.setSimNum(map.get("最大支持SIM卡数量"));
+                property.setSimType(map.get("SIM卡类型"));
+                property.setNet_5g(map.get("5G网络"));
+                property.setNet_4g(map.get("4G网络"));
+                property.setNet_3g(map.get("3G/2G网络"));
+                property.setAvOut(map.get("耳机接口类型"));
+                property.setChargerPort(map.get("充电接口类型"));
+                String size = map.get("机身长度（mm）") + "x" + map.get("机身宽度（mm）") + "x" + map.get("机身厚度(mm)");
+                property.setSize(size);
+                property.setNfc(map.get("NFC/NFC模式"));
+                property.setBeforeCamera(map.get("前置摄像头"));
+                property.setAfterCamera(map.get("后置摄像头"));
+                property.setCpu(map.get("主芯片"));
+                properties.add(property);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            String sku = product.getMainSku();
-
-            Document pares = JsoupUtils.parse(reptileUrl.getItemUrl() + sku + ".html");
-            System.out.println(reptileUrl.getItemUrl() + sku + ".html");
-            Elements e = pares.select(".Ptable");
-            if (e.first() == null) {
-                System.out.println(pares);
-                log.error(brand.getId());
-                throw new GlobalException(ResultCodeEnum.JD_CONNECT_ERROR);
-            }
-            Elements elements = e.select(".Ptable-item");
-            Map<String, String> map = new HashMap<>();
-            Property property = new Property();
-            for (Element element : elements) {
-                String h3 = element.select("h3").text().trim();
-                String dl = element.select("dl").text().trim();
-                if ("前置摄像头".equals(h3) || "后置摄像头".equals(h3) || "主芯片".equals(h3)) {
-                    map.put(h3, dl);
-                } else {
-                    Elements select = element.select(".clearfix");
-                    for (Element element1 : select) {
-                        element1.select("p").remove();
-                        String dt = element1.select("dt").text().trim();
-                        String dd = element1.select("dd").text().trim();
-                        map.put(dt, dd);
-                    }
-                }
-            }
-            property.setName(map.get("产品名称"));
-            property.setWeight(map.get("机身重量（g）"));
-            String initDate = map.get("上市年份") + map.get("上市月份") + map.get("首销日期");
-            property.setInitDate(initDate);
-            property.setScreenSize(map.get("主屏幕尺寸"));
-            property.setDisplayRefresh(map.get("屏幕刷新率"));
-            property.setScreenType(map.get("屏幕材质类型"));
-            property.setSimNum(map.get("最大支持SIM卡数量"));
-            property.setSimType(map.get("SIM卡类型"));
-            property.setNet_5g(map.get("5G网络"));
-            property.setNet_4g(map.get("4G网络"));
-            property.setNet_3g(map.get("3G/2G网络"));
-            property.setAvOut(map.get("耳机接口类型"));
-            property.setChargerPort(map.get("充电接口类型"));
-            String size = map.get("机身长度（mm）") + "x" + map.get("机身宽度（mm）") + "x" + map.get("机身厚度(mm)");
-            property.setSize(size);
-            property.setNfc(map.get("NFC/NFC模式"));
-            property.setBeforeCamera(map.get("前置摄像头"));
-            property.setAfterCamera(map.get("后置摄像头"));
-            property.setCpu(map.get("主芯片"));
-            properties.add(property);
         }
+
         boolean b = propertyService.saveOrUpdateBatch(properties);
         return b;
 
@@ -281,11 +292,6 @@ public class JDServiceImpl implements JDService {
     @Override
     public boolean savePropertyBySku(List<Brand> brandIds) {
         for (Brand brand : brandIds) {
-            try {
-                TimeUnit.SECONDS.sleep(5);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             this.savePropertyBySku(brand);
         }
         return true;
