@@ -44,7 +44,7 @@ public enum ResultCodeEnum {
     SMS_SEND_ERROR(false, 28006, "短信发送失败"),
     SMS_SEND_ERROR_BUSINESS_LIMIT_CONTROL(false, 28007, "短信发送过于频繁"),
 
-    JD_CONNECT_ERROR(false, 30000, "被京东嘎嘎拉黑了");
+    JD_CONNECT_ERROR(false, 30000, "嘎，被京东拉黑了");
 
 
     private Boolean success;

@@ -15,7 +15,7 @@ public interface JDService {
     String getBrandId(Document document);
 
     //根据sku保存品牌
-    int saveProductBySku(String sku, String id);
+    int saveProductBySku(List<String> sku, String id);
 
     //获取购买次数
     String getBuyCountBySku(String sku);
@@ -25,5 +25,9 @@ public interface JDService {
 
     //根据品牌获取品牌下的产品
     int saveProductByBrand(List<Brand> brands);
+
+    boolean deleteBrand();
+
+    boolean savePropertyBySku(String sku);
 
 }

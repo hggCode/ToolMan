@@ -1,7 +1,6 @@
 package work.wlwl.toolman.service.reptile.service.impl;
 
-import cn.hutool.http.HttpUtil;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -23,7 +22,9 @@ import work.wlwl.toolman.service.reptile.utils.StrUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class JDServiceImpl implements JDService {
 
@@ -72,35 +73,50 @@ public class JDServiceImpl implements JDService {
 
 
     /**
-     * 进入当个产品的页面 获取产品数据
-     * 如果该产品是否存在，不存在即插入，否者则更新
+     * 根据skuList批量保存product
      *
-     * @param sku
-     * @return 影响条数
+     * @param skuList
+     * @param id
+     * @return
      */
     @Override
-    public int saveProductBySku(String sku, String id) {
-        String url = reptileUrl.getItemUrl() + sku + ".html";
-        Document document = JsoupUtils.pares(url);
-        Product product = new Product();
-        String name = document.title();
-        name = StrUtils.getName(name);
-        product.setName(name);  //产品名
-        product.setMainSku(sku);   //默认sku
-        String buyCount = this.getBuyCountBySku(sku);
-        String brandId = this.getBrandId(document);
-        if (StringUtils.hasLength(id) && !id.equals(brandId)) {
-            return 0;
+    public int saveProductBySku(List<String> skuList, String id) {
+        List<Product> productList = new ArrayList<>();
+//        遍历skuList中的每一个sku对应的产品
+        for (String sku : skuList) {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            String url = reptileUrl.getItemUrl() + sku + ".html";
+            Document document = JsoupUtils.pares(url);
+            Product product = new Product();
+            String name = document.title();
+            name = StrUtils.getName(name);
+            product.setName(name);  //产品名
+            product.setMainSku(sku);   //默认sku
+            String buyCount = this.getBuyCountBySku(sku);
+            String brandId = this.getBrandId(document);
+            if ("-1".equals(brandId) || "-1".equals(buyCount)) {
+                log.error(sku);
+                throw new GlobalException(ResultCodeEnum.JD_CONNECT_ERROR);
+            }
+            if (StringUtils.hasLength(id) && !id.equals(brandId)) {
+//              当前产品的品牌id不等于传进来的品牌id
+                continue;
+            }
+            product.setBuyCount(buyCount);  //购买数
+            product.setBrandId(brandId);
+            productList.add(product);
         }
-        if ("-1".equals(brandId) || "-1".equals(buyCount)) {
-            throw new GlobalException(ResultCodeEnum.JD_CONNECT_ERROR);
+        boolean b = productService.saveOrUpdateBatch(productList);
+        try {
+            TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        product.setBuyCount(buyCount);  //购买数
-        product.setBrandId(brandId);
-        UpdateWrapper wrapper = new UpdateWrapper();
-        wrapper.eq("name", name);
-        boolean b = productService.saveOrUpdate(product, wrapper);
-        return b ? 1 : 0;
+        return productList.size();
     }
 
 
@@ -110,24 +126,25 @@ public class JDServiceImpl implements JDService {
         String brandName = brand.getName();
         String url = reptileUrl.getGetProductByBrandUrl() + brandName;
         Document context = JsoupUtils.pares(url);
-        Elements elements = context.getElementsByClass("gl-warp");
-        if (elements.size() == 0) {
-            return -1;
+        Element element = context.select(".gl-warp").first();
+        List<String> skuList = new ArrayList<>();
+        if (element == null) {
+//            被京东拦截
+            log.error("一条都没插进去就被京东嘎了");
+            throw new GlobalException(ResultCodeEnum.JD_CONNECT_ERROR);
         }
-        int count = 0;
-        for (Element element : elements) {
 //            获取到每个产品
-            Elements items = element.select("li");
-            for (Element item : items) {
+        Elements items = element.select("li");
+        for (Element item : items) {
 //                剔除不是直营的
-                Elements e = item.getElementsByClass("goods-icons");
-                if (e.size() == 0) {
-                    continue;
-                }
-                String sku = item.attr("data-sku");
-                count += this.saveProductBySku(sku, brand.getId());
+            Elements e = item.getElementsByClass("goods-icons");
+            if (e.size() == 0) {
+                continue;
             }
+            String sku = item.attr("data-sku");
+            skuList.add(sku);
         }
+        int count = this.saveProductBySku(skuList, brand.getId());
 
         return count;
     }
@@ -139,6 +156,58 @@ public class JDServiceImpl implements JDService {
             count += this.saveProductByBrand(brand);
         }
         return count;
+    }
+
+    /**
+     * 删除jd自营都没有的手机品牌
+     *
+     * @return
+     */
+    @Override
+    public boolean deleteBrand() {
+        List<Brand> list = brandService.list();
+        List<String> brandIds = new ArrayList<>();
+        for (Brand brand : list) {
+            String brandName = brand.getName();
+            String url = reptileUrl.getGetProductByBrandUrl() + brandName;
+            Document context = JsoupUtils.pares(url);
+            Element element = context.getElementsByClass("gl-warp").first();
+            int count = 0;
+            if (element == null) {
+                if (brandIds.size() > 0) {
+                    brandService.removeByIds(brandIds);
+                }
+                log.error("被嘎前删了" + count + "条");
+                throw new GlobalException(ResultCodeEnum.JD_CONNECT_ERROR);
+            }
+//            获取到每个产品
+            Elements items = element.select("li");
+            for (Element item : items) {
+//                剔除不是直营的
+                Elements e = item.getElementsByClass("goods-icons");
+                if (e.size() == 0) {
+                    continue;
+                }
+                count += 1;
+            }
+            if (count < 1) {
+                brandIds.add(brand.getId());
+            }
+
+        }
+        if (brandIds.size() > 0) {
+            return brandService.removeByIds(brandIds);
+        }
+        return false;
+
+    }
+
+    @Override
+    public boolean savePropertyBySku(String sku) {
+
+
+
+        return false;
     }
 
 
@@ -153,6 +222,7 @@ public class JDServiceImpl implements JDService {
         Element element = document.select("script[charset]").first();
         if (element == null) {
             System.out.println(document);
+            return "-1";
         }
         String data = element.data();
         return StrUtils.getAttr(data, "brand");
@@ -167,7 +237,7 @@ public class JDServiceImpl implements JDService {
      */
     @Override
     public String getBuyCountBySku(String sku) {
-        String context = HttpUtil.get(reptileUrl.getGetBuyCountUrl() + sku);
+        String context = JsoupUtils.pares(reptileUrl.getGetBuyCountUrl() + sku).body().text();
         return StrUtils.subStr(context, "\"CommentCountStr\":\"", "\"");
     }
 

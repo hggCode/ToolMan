@@ -25,15 +25,15 @@ const routes = [
     meta: { title: 'Example', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        path: 'Mp',
+        name: 'Mp',
+        component: () => import('@/views/MP/MpList'),
+        meta: { title: 'Mp', icon: 'Mp' }
       },
       {
         path: 'a',
         name: 'a',
-        component: () => import('@/views/table/index'),
+        component: () => import('@/views/MP/MpList'),
         meta: { title: 'a', icon: 'a' }
       }
     ]

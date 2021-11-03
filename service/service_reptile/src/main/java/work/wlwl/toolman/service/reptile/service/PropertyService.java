@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author hgg&fbb
- * @since 2021-11-01
+ * @since 2021-11-03
  */
 public interface PropertyService extends IService<Property> {
 

@@ -1,8 +1,10 @@
 package work.wlwl.toolman.service.reptile.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import work.wlwl.toolman.service.base.entity.R;
@@ -29,19 +31,29 @@ public class JDReptileController {
     }
 
 
-    @GetMapping("getProductListByBrand")
-    public R getProductList() {
-        Brand brand = new Brand();
-        brand.setName("Apple");
-        brand.setId("14026");
+    @GetMapping("save/product/{name}")
+    public R getProductList(
+            @PathVariable("name") String name) {
+        QueryWrapper<Brand> wrapper = new QueryWrapper();
+        wrapper.eq("name", name);
+        Brand brand = brandService.getOne(wrapper);
         int count = jdService.saveProductByBrand(brand);
         return R.ok().message("插入了" + count);
     }
 
-    @GetMapping("saveProductByBrandList")
+    @GetMapping("save/product/byBrandList")
     public R saveProduct() {
-        List<Brand> list = brandService.list();
+        QueryWrapper<Brand> wrapper = new QueryWrapper<>();
+        wrapper.orderByAsc("ranking");
+        wrapper.ge("ranking", 34);
+        List<Brand> list = brandService.list(wrapper);
         int count = jdService.saveProductByBrand(list);
         return R.ok().message("保存了" + count + "条");
+    }
+
+    @GetMapping("remove")
+    public R remove() {
+        boolean b = jdService.deleteBrand();
+        return R.ok().message(b + "");
     }
 }
