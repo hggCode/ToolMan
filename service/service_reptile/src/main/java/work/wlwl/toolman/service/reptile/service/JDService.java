@@ -28,6 +28,9 @@ public interface JDService {
 
     boolean deleteBrand();
 
-    boolean savePropertyBySku(String sku);
+    boolean savePropertyBySku(Brand sku);
+    boolean savePropertyBySku(List<Brand> brandIds);
+
+
 
 }

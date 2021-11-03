@@ -1,5 +1,6 @@
 package work.wlwl.toolman.service.reptile.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,14 +15,18 @@ import work.wlwl.toolman.service.base.exception.GlobalException;
 import work.wlwl.toolman.service.reptile.config.ReptileUrl;
 import work.wlwl.toolman.service.reptile.entity.Brand;
 import work.wlwl.toolman.service.reptile.entity.Product;
+import work.wlwl.toolman.service.reptile.entity.Property;
 import work.wlwl.toolman.service.reptile.service.BrandService;
 import work.wlwl.toolman.service.reptile.service.JDService;
 import work.wlwl.toolman.service.reptile.service.ProductService;
+import work.wlwl.toolman.service.reptile.service.PropertyService;
 import work.wlwl.toolman.service.reptile.utils.JsoupUtils;
 import work.wlwl.toolman.service.reptile.utils.StrUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -37,6 +42,9 @@ public class JDServiceImpl implements JDService {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private PropertyService propertyService;
+
 
     /**
      * 爬取品牌列表
@@ -47,7 +55,7 @@ public class JDServiceImpl implements JDService {
     @Transactional(rollbackFor = Exception.class)
     public String saveOrUpdateBrand() {
         String url = reptileUrl.getTestUrl();
-        Document context = JsoupUtils.pares(url);
+        Document context = JsoupUtils.parse(url);
         int ranking = 1;
         Elements elements = context.getElementsByClass("v-fixed");
         if (elements.size() == 0) {
@@ -90,7 +98,7 @@ public class JDServiceImpl implements JDService {
                 e.printStackTrace();
             }
             String url = reptileUrl.getItemUrl() + sku + ".html";
-            Document document = JsoupUtils.pares(url);
+            Document document = JsoupUtils.parse(url);
             Product product = new Product();
             String name = document.title();
             name = StrUtils.getName(name);
@@ -125,7 +133,7 @@ public class JDServiceImpl implements JDService {
     public int saveProductByBrand(Brand brand) {
         String brandName = brand.getName();
         String url = reptileUrl.getGetProductByBrandUrl() + brandName;
-        Document context = JsoupUtils.pares(url);
+        Document context = JsoupUtils.parse(url);
         Element element = context.select(".gl-warp").first();
         List<String> skuList = new ArrayList<>();
         if (element == null) {
@@ -170,7 +178,7 @@ public class JDServiceImpl implements JDService {
         for (Brand brand : list) {
             String brandName = brand.getName();
             String url = reptileUrl.getGetProductByBrandUrl() + brandName;
-            Document context = JsoupUtils.pares(url);
+            Document context = JsoupUtils.parse(url);
             Element element = context.getElementsByClass("gl-warp").first();
             int count = 0;
             if (element == null) {
@@ -203,11 +211,84 @@ public class JDServiceImpl implements JDService {
     }
 
     @Override
-    public boolean savePropertyBySku(String sku) {
+    public boolean savePropertyBySku(Brand brand) {
+        ArrayList<Property> properties = new ArrayList<>();
+        QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("brand_id", brand.getId())
+                .select("main_sku");
+        List<Product> list = productService.list(queryWrapper);
+        for (Product product : list) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            String sku = product.getMainSku();
 
+            Document pares = JsoupUtils.parse(reptileUrl.getItemUrl() + sku + ".html");
+            System.out.println(reptileUrl.getItemUrl() + sku + ".html");
+            Elements e = pares.select(".Ptable");
+            if (e.first() == null) {
+                System.out.println(pares);
+                log.error(brand.getId());
+                throw new GlobalException(ResultCodeEnum.JD_CONNECT_ERROR);
+            }
+            Elements elements = e.select(".Ptable-item");
+            Map<String, String> map = new HashMap<>();
+            Property property = new Property();
+            for (Element element : elements) {
+                String h3 = element.select("h3").text().trim();
+                String dl = element.select("dl").text().trim();
+                if ("前置摄像头".equals(h3) || "后置摄像头".equals(h3) || "主芯片".equals(h3)) {
+                    map.put(h3, dl);
+                } else {
+                    Elements select = element.select(".clearfix");
+                    for (Element element1 : select) {
+                        element1.select("p").remove();
+                        String dt = element1.select("dt").text().trim();
+                        String dd = element1.select("dd").text().trim();
+                        map.put(dt, dd);
+                    }
+                }
+            }
+            property.setName(map.get("产品名称"));
+            property.setWeight(map.get("机身重量（g）"));
+            String initDate = map.get("上市年份") + map.get("上市月份") + map.get("首销日期");
+            property.setInitDate(initDate);
+            property.setScreenSize(map.get("主屏幕尺寸"));
+            property.setDisplayRefresh(map.get("屏幕刷新率"));
+            property.setScreenType(map.get("屏幕材质类型"));
+            property.setSimNum(map.get("最大支持SIM卡数量"));
+            property.setSimType(map.get("SIM卡类型"));
+            property.setNet_5g(map.get("5G网络"));
+            property.setNet_4g(map.get("4G网络"));
+            property.setNet_3g(map.get("3G/2G网络"));
+            property.setAvOut(map.get("耳机接口类型"));
+            property.setChargerPort(map.get("充电接口类型"));
+            String size = map.get("机身长度（mm）") + "x" + map.get("机身宽度（mm）") + "x" + map.get("机身厚度(mm)");
+            property.setSize(size);
+            property.setNfc(map.get("NFC/NFC模式"));
+            property.setBeforeCamera(map.get("前置摄像头"));
+            property.setAfterCamera(map.get("后置摄像头"));
+            property.setCpu(map.get("主芯片"));
+            properties.add(property);
+        }
+        boolean b = propertyService.saveOrUpdateBatch(properties);
+        return b;
 
+    }
 
-        return false;
+    @Override
+    public boolean savePropertyBySku(List<Brand> brandIds) {
+        for (Brand brand : brandIds) {
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            this.savePropertyBySku(brand);
+        }
+        return true;
     }
 
 
@@ -237,7 +318,7 @@ public class JDServiceImpl implements JDService {
      */
     @Override
     public String getBuyCountBySku(String sku) {
-        String context = JsoupUtils.pares(reptileUrl.getGetBuyCountUrl() + sku).body().text();
+        String context = JsoupUtils.parse(reptileUrl.getGetBuyCountUrl() + sku).body().text();
         return StrUtils.subStr(context, "\"CommentCountStr\":\"", "\"");
     }
 

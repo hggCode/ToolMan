@@ -11,6 +11,7 @@ import work.wlwl.toolman.service.base.entity.R;
 import work.wlwl.toolman.service.reptile.entity.Brand;
 import work.wlwl.toolman.service.reptile.service.BrandService;
 import work.wlwl.toolman.service.reptile.service.JDService;
+import work.wlwl.toolman.service.reptile.service.ProductService;
 
 import java.util.List;
 
@@ -23,6 +24,10 @@ public class JDReptileController {
 
     @Autowired
     private BrandService brandService;
+
+    @Autowired
+    private ProductService productService;
+
 
     @GetMapping("brand")
     public R getBrand() {
@@ -56,4 +61,26 @@ public class JDReptileController {
         boolean b = jdService.deleteBrand();
         return R.ok().message(b + "");
     }
+
+//    @GetMapping("save/property/{sku}")
+//    public R saveProperty(
+//            @PathVariable("sku") String sku) {
+//
+//        boolean b = jdService.savePropertyBySku(sku);
+//        if (b) {
+//            return R.ok().message("添加成功");
+//        }
+//        return R.error().message("添加失败");
+//    }
+
+    @GetMapping("save/property")
+    public R saveProperty() {
+        QueryWrapper<Brand> wrapper = new QueryWrapper<>();
+        wrapper.orderByAsc("ranking");
+//        wrapper.ge("ranking", 34);
+        List<Brand> list = brandService.list(wrapper);
+        jdService.savePropertyBySku(list);
+        return R.ok().message("保存");
+    }
+
 }

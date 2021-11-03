@@ -35,14 +35,8 @@ public class Property extends BaseEntity {
     @ApiModelProperty("手机尺寸（长宽高）")
     private String size;
 
-    @ApiModelProperty("机身颜色颜色")
-    private String color;
-
     @ApiModelProperty("手机重量")
     private String weight;
-
-    @ApiModelProperty("内存")
-    private String ram;
 
     @ApiModelProperty("屏幕材质")
     private String screenType;
@@ -75,13 +69,14 @@ public class Property extends BaseEntity {
     private String simNum;
 
     @ApiModelProperty("5g")
-    private String net5g;
+    private String net_5g;
 
     @ApiModelProperty("4g")
-    private String net4g;
+
+    private String net_4g;
 
     @ApiModelProperty("3g")
-    private String net3g;
+    private String net_3g;
 
     @ApiModelProperty("充电功率")
     private String chargerPower;
