@@ -25,7 +25,7 @@ public class FileController {
     @Autowired
     private FileService fileService;
 
-    @ApiOperation("文件上传")
+    @ApiOperation("本地文件上传")
     @PostMapping("upload")
     public R upload(
             @ApiParam(value = "file", required = true)
@@ -33,12 +33,9 @@ public class FileController {
 
             @ApiParam(value = "模块", required = true)
             @RequestParam("module") String module) throws IOException {
-
-
         try {
             InputStream inputStream = file.getInputStream();
             String originalFilename = file.getOriginalFilename();
-
             String upload = fileService.upload(inputStream, module, originalFilename);
 
             return R.ok().message("上传成功").data("url", upload);
@@ -46,6 +43,18 @@ public class FileController {
             e.printStackTrace();
             throw new GlobalException(ResultCodeEnum.FILE_UPLOAD_ERROR);
         }
+    }
+
+    @ApiOperation("网络文件上传")
+    @GetMapping("upload")
+    public R upload(
+            @ApiParam(value = "url", required = true)
+            @RequestParam("url") String url,
+
+            @ApiParam(value = "模块", required = true)
+            @RequestParam("module") String module) {
+        String upload = fileService.upload(url, module);
+        return R.ok().message("上传成功").data("url", upload);
     }
 
     @ApiOperation("文件删除")

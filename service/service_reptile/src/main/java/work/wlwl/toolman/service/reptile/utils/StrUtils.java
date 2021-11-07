@@ -2,7 +2,6 @@ package work.wlwl.toolman.service.reptile.utils;
 
 
 import org.springframework.util.StringUtils;
-import work.wlwl.toolman.service.base.exception.GlobalException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +56,7 @@ public class StrUtils {
             System.out.println("在context中找不到end语句-->" + end + "哦,context内容长度为" + context.length());
             return "-1";
         }
-        System.out.println("start_index===>" + start_index + "  end_index===>" + end_index);
+//        System.out.println("start_index===>" + start_index + "  end_index===>" + end_index);
 //      因为substring 默认包含前面 所以要去掉
         context = context.substring(start_index + start.length(), end_index);
         return context.trim();
@@ -120,6 +119,5 @@ public class StrUtils {
     public static String getName(String context) {
         return subStr(context, "【", "】");
     }
-
 
 }

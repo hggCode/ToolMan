@@ -9,8 +9,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 public class ReptileUrl {
-    private String testUrl;
-    private String getProductByBrandUrl;
+    private String indexUrl;
+    private String productByBrandUrl;
     private String itemUrl;
-    private String getBuyCountUrl;
+    private String buyCountUrl;
+    private String priceUrl;
 }

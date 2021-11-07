@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "aliyun.oss")
 public class OssConfig {
     private String endpoint;
-    private String keyid;
-    private String keysecret;
-    private String bucketname;
+    private String keyId;
+    private String keySecret;
+    private String bucketName;
 }

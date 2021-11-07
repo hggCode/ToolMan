@@ -1,14 +1,13 @@
 package work.wlwl.toolman.service.reptile.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import work.wlwl.toolman.service.base.entity.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
+import work.wlwl.toolman.service.base.entity.BaseEntity;
+
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -18,8 +17,8 @@ import lombok.experimental.Accessors;
  * @author hgg&fbb
  * @since 2021-11-01
  */
-@Getter
-@Setter
+@Data
+
 @Accessors(chain = true)
 @TableName("reptile_edition")
 @ApiModel(value = "Edition对象", description = "")
@@ -41,9 +40,6 @@ public class Edition extends BaseEntity {
 
     @ApiModelProperty("京东参考价格")
     private BigDecimal jdPrice;
-
-    @ApiModelProperty("封面")
-    private String avatar;
 
     @ApiModelProperty("内存")
     private String ram;

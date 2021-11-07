@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import work.wlwl.toolman.service.base.entity.R;
 import work.wlwl.toolman.service.reptile.entity.Brand;
+import work.wlwl.toolman.service.reptile.entity.Product;
 import work.wlwl.toolman.service.reptile.service.BrandService;
 import work.wlwl.toolman.service.reptile.service.JDService;
 import work.wlwl.toolman.service.reptile.service.ProductService;
+import work.wlwl.toolman.service.reptile.utils.SleepUtils;
 
 import java.util.List;
 
@@ -46,11 +48,11 @@ public class JDReptileController {
         return R.ok().message("插入了" + count);
     }
 
-    @GetMapping("save/product/byBrandList")
-    public R saveProduct() {
+    @GetMapping("save/product/byBrand/{sort}")
+    public R saveProduct(@PathVariable("sort") String sort) {
         QueryWrapper<Brand> wrapper = new QueryWrapper<>();
         wrapper.orderByAsc("ranking");
-        wrapper.ge("ranking", 34);
+        wrapper.ge("ranking", sort);
         List<Brand> list = brandService.list(wrapper);
         int count = jdService.saveProductByBrand(list);
         return R.ok().message("保存了" + count + "条");
@@ -62,25 +64,42 @@ public class JDReptileController {
         return R.ok().message(b + "");
     }
 
-//    @GetMapping("save/property/{sku}")
-//    public R saveProperty(
-//            @PathVariable("sku") String sku) {
-//
-//        boolean b = jdService.savePropertyBySku(sku);
-//        if (b) {
-//            return R.ok().message("添加成功");
-//        }
-//        return R.error().message("添加失败");
-//    }
-
-    @GetMapping("save/property")
-    public R saveProperty() {
+    @GetMapping("save/property/{sort}")
+    public R saveProperty(@PathVariable String sort) {
         QueryWrapper<Brand> wrapper = new QueryWrapper<>();
         wrapper.orderByAsc("ranking");
-//        wrapper.ge("ranking", 34);
+        wrapper.ge("ranking", sort);
         List<Brand> list = brandService.list(wrapper);
-        jdService.savePropertyBySku(list);
-        return R.ok().message("保存");
+        int count = jdService.savePropertyBySku(list);
+        return R.ok().message("保存了" + count + "条");
     }
+
+
+    @GetMapping("save/edition/by/sku/{sku}")
+    public R saveEditionBySku(@PathVariable String sku) {
+        QueryWrapper<Product> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("main_sku", sku);
+        Product product = productService.getOne(queryWrapper);
+        int count = jdService.saveEdition(product);
+        product.setRanking(1);
+        productService.saveOrUpdate(product);
+        return R.ok().message("保存了" + count + "条");
+    }
+
+    @GetMapping("save/edition/by/product")
+    public R saveEdition() {
+        QueryWrapper<Product> wrapper=new QueryWrapper();
+        wrapper.isNull("ranking");
+        List<Product> list = productService.list(wrapper);
+        int count = 0;
+        for (Product product : list) {
+            count += jdService.saveEdition(product);
+            product.setRanking(1);
+            productService.saveOrUpdate(product);
+            SleepUtils.seconds(2);
+        }
+        return R.ok().message("保存了" + count + "条");
+    }
+
 
 }
