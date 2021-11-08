@@ -30,8 +30,4 @@ public class Color extends BaseEntity {
     @ApiModelProperty("颜色")
     private String color;
 
-    @ApiModelProperty("封面")
-    private String avatar;
-
-
 }
