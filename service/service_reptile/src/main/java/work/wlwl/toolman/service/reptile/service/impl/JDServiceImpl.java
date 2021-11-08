@@ -363,7 +363,6 @@ public class JDServiceImpl implements JDService {
             }
         }
         edition.setRam(ram);  //设置内存
-        // TODO: 2021/11/07  avatar跟color还没解决
         edList.add(edition);
         editionService.saveBatch(edList);
         return edList.size();
