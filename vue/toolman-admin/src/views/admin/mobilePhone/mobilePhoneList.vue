@@ -43,8 +43,8 @@
             <el-table-column prop="province" label="机型"></el-table-column>
             <el-table-column prop="city" label="价格"></el-table-column>
             <el-table-column prop="address" label="CPU"></el-table-column>
-            <el-table-column prop="address" label="品牌"></el-table-column>
-            <el-table-column prop="address" label="收藏数"></el-table-column>
+            <el-table-column prop="city" label="品牌"></el-table-column>
+            <el-table-column prop="zip" label="收藏数"></el-table-column>
             <el-table-column label="操作" width="120">
                 <template #default="scope">
                     <router-link to="detailsFrom">
@@ -105,34 +105,34 @@
                     {
                         date: '2016-05-02',
                         path: "public/favicon.ico",
-                        province: '上海',
-                        city: '普陀区',
-                        address: '上海市普陀区金沙江路 1518 弄',
-                        zip: 200333,
+                        province: '华为',
+                        city: '999.00',
+                        address: '骁龙888',
+                        zip: 132,
                     },
                     {
                         date: '2016-05-04',
                         path: 'public/favicon.ico',
-                        province: '上海',
-                        city: '普陀区',
-                        address: '上海市普陀区金沙江路 1517 弄',
-                        zip: 200333,
+                        province: 'iPhone',
+                        city: '666.00',
+                        address: '骁龙877',
+                        zip: 125,
                     },
                     {
                         date: '2016-05-01',
                         path: 'public/favicon.ico',
-                        province: '上海',
-                        city: '普陀区',
-                        address: '上海市普陀区金沙江路 1519 弄',
-                        zip: 200333,
+                        province: '荣耀',
+                        city: '1555.00',
+                        address: '骁龙777',
+                        zip: 314,
                     },
                     {
                         date: '2016-05-03',
                         path: 'public/favicon.ico',
-                        province: '上海',
-                        city: '普陀区',
-                        address: '上海市普陀区金沙江路 1516 弄',
-                        zip: 200333,
+                        province: '小米',
+                        city: '2999.00',
+                        address: '骁龙666',
+                        zip: 532,
                     },
                 ],
             }
