@@ -1,18 +1,17 @@
 <template>
     <div class="login-warp">
         <div class="login-main">
-            <div class="title">后台管理系统</div>
+            <div class="title">登录</div>
             <div class="main">
-                <el-form :model="form" :label-position="top" status-icon :rules="rules" ref="loginFrom"
+                <el-form :model="form" status-icon :rules="rules" ref="loginFrom"
                          label-width="100px"
                          class="demo-ruleForm">
-                    <el-form-item prop="username">
-                        <el-input type="text" v-model="form.username" autocomplete="off" placeholder="请输入用户名"
+                    <el-form-item prop="uname">
+                        <el-input type="text" v-model="form.uname" autocomplete="off" placeholder="请输入用户名"
                                   clearable></el-input>
                     </el-form-item>
-                    <el-form-item prop="password">
-                        <el-input type="password" v-model="form.password" autocomplete="off" placeholder="请输入密码"
-                                  clearable
+                    <el-form-item prop="upwd">
+                        <el-input type="password" v-model="form.upwd" autocomplete="off" placeholder="请输入密码" clearable
                                   show-password></el-input>
                     </el-form-item>
                     <el-form-item>
@@ -20,61 +19,62 @@
                             <el-button type="primary" @click="submitForm('loginFrom')">登录</el-button>
                         </div>
                     </el-form-item>
+                    <div style="text-align: center;color: #898989;margin-bottom: 10px">
+                       还没注册&nbsp;？<a href="register" style="color: #409eff">去注册</a>
+                    </div>
+
                 </el-form>
             </div>
         </div>
     </div>
 </template>
-
 <script>
-
     import {ElMessage} from "element-plus";
 
     export default {
         data() {
             return {
                 form: {
-                    username: '',
-                    password: '',
+                    uname: '',
+                    upwd: '',
                 },
                 rules: {
-                    username: [
+                    uname: [
                         {required: true, message: "请输入用户名", trigger: "blur"}
                     ],
-                    password: [
+                    upwd: [
                         {required: true, message: "请输入密码", trigger: 'blur'}
                     ]
                 }
             };
         },
         created() {
-
         },
         methods: {
             submitForm(formName) {
+                let that = this;
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        let that = this;
                         const formData = new FormData();
-                        formData.append("aname", this.form.username)
-                        formData.append("apwd", this.form.password)
-                        this.$http.post("http://localhost:8081/api/admin/login", formData)
+                        formData.append("uname", this.form.uname)
+                        formData.append("upwd", this.form.upwd)
+                        this.$http.post("http://localhost:8081/api/user/login", formData)
                             .then(res => {
                                 if (res.code == 20000) {
-                                    console.log(res.data)
-                                    let token = {token: res.data.token}
-                                    sessionStorage.setItem("aid", res.data.aid)
-                                    sessionStorage.setItem("anmae",res.data.aname)
-                                    that.$store.dispatch("set_token", token)
+                                    let dd={
+                                        token:res.data.token,
+                                        uid:res.data.uid
+                                    }
+                                    that.$store.dispatch("set_token",dd)
                                     ElMessage.success('登录成功')
-                                    that.$router.push('/admin');
-                                } else {
-                                    ElMessage.error('密码账号错误');
+                                    that.$router.push('/index');
                                 }
                                 console.log(res)
-                                // console.log(that.$store.state.token)
+                                console.log(that.$store.state.token)
                             })
+
                     } else {
+                        ElMessage.error('密码账号错误')
                         console.log('error submit!!');
                         return false;
                     }
@@ -87,7 +87,8 @@
 <style>
     .login-warp {
         display: flex;
-        height: 100%;
+        height: 100vh;
+        width: 100vw;
         justify-content: center;
         align-items: center;
         background: url("../../assets/background.jpg");
