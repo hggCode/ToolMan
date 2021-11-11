@@ -2,6 +2,9 @@ package work.wlwl.toolman.service.reptile.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/reptile/jd")
+@Api("京东爬虫")
 public class JDReptileController {
 
     @Autowired
@@ -32,69 +36,89 @@ public class JDReptileController {
 
 
     @GetMapping("brand")
+    @ApiOperation("更新品牌列表")
     public R getBrand() {
-        String mes = jdService.saveOrUpdateBrand();
-        return R.ok().message(mes);
+        int count = jdService.saveOrUpdateBrand();
+        return R.ok().message("添加了" + count + "个品牌");
     }
 
-
+    @ApiOperation("根据名字爬取指定的产品")
     @GetMapping("save/product/{name}")
-    public R getProductList(
-            @PathVariable("name") String name) {
-        QueryWrapper<Brand> wrapper = new QueryWrapper();
-        wrapper.eq("name", name);
-        Brand brand = brandService.getOne(wrapper);
-        int count = jdService.saveProductByBrand(brand);
-        return R.ok().message("插入了" + count);
+    public R getProductList(@PathVariable String name) {
+        return R.ok();
     }
 
-    @GetMapping("save/product/byBrand/{sort}")
-    public R saveProduct(@PathVariable("sort") String sort) {
+    @ApiOperation("根据sku爬取指定的产品")
+    @GetMapping("save/product/by/sku/{sku}")
+    public R saveProductBySku(@ApiParam(value = "sku", required = true)
+                              @PathVariable String sku) {
+        boolean b = jdService.saveProductBySku(sku);
+        if (b) {
+            return R.ok().message("保存成功");
+        }
+        return R.error().message("保存失败");
+    }
+
+
+    @GetMapping("save/product/byBrand")
+    @ApiOperation("保存每个品牌的product")
+    public R saveProduct() {
         QueryWrapper<Brand> wrapper = new QueryWrapper<>();
-        wrapper.orderByAsc("ranking");
-        wrapper.ge("ranking", sort);
-        List<Brand> list = brandService.list(wrapper);
+        List<Brand> list = brandService.list();
         int count = jdService.saveProductByBrand(list);
-        return R.ok().message("保存了" + count + "条");
-    }
-
-    @GetMapping("remove")
-    public R remove() {
-        boolean b = jdService.deleteBrand();
-        return R.ok().message(b + "");
-    }
-
-    @GetMapping("save/property/{sort}")
-    public R saveProperty(@PathVariable String sort) {
-        QueryWrapper<Brand> wrapper = new QueryWrapper<>();
-        wrapper.orderByAsc("ranking");
-        wrapper.ge("ranking", sort);
-        List<Brand> list = brandService.list(wrapper);
-        int count = jdService.savePropertyBySku(list);
         return R.ok().message("保存了" + count + "条");
     }
 
 
     @GetMapping("save/edition/by/sku/{sku}")
+    @ApiOperation("根据sku更新或保存product的版本")
     public R saveEditionBySku(@PathVariable String sku) {
-        QueryWrapper<Product> queryWrapper = new QueryWrapper();
+        QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("main_sku", sku);
         Product product = productService.getOne(queryWrapper);
         int count = jdService.saveEdition(product);
-        product.setRanking(1);
-        productService.saveOrUpdate(product);
-        return R.ok().message("保存了" + count + "条");
+        return R.ok().message("更新了" + count + "条");
     }
 
     @GetMapping("save/edition/by/product")
+    @ApiOperation("刚刚创建搭建时，用于保存产品版本使用")
     public R saveEdition() {
-        QueryWrapper<Product> wrapper=new QueryWrapper();
+        QueryWrapper<Product> wrapper = new QueryWrapper<>();
         wrapper.isNull("ranking");
         List<Product> list = productService.list(wrapper);
         int count = 0;
         for (Product product : list) {
             count += jdService.saveEdition(product);
             product.setRanking(1);
+            productService.saveOrUpdate(product);
+            SleepUtils.seconds(2);
+        }
+        return R.ok().message("保存了" + count + "条");
+    }
+
+
+    @GetMapping("save/img/by/product/{id}")
+    @ApiOperation("保存图片根据productId")
+    public R saveImg(@PathVariable String id) {
+        Product product = productService.getById(id);
+        int count = jdService.saveColor(product);
+        product.setRanking(2);
+        productService.saveOrUpdate(product);
+        SleepUtils.seconds(2);
+        return R.ok().message("保存了" + count + "条");
+    }
+
+
+    @GetMapping("save/img/by/product")
+    @ApiOperation("保存所有的product的图片")
+    public R saveImg() {
+        QueryWrapper<Product> wrapper = new QueryWrapper();
+        wrapper.eq("ranking", 1);
+        List<Product> list = productService.list(wrapper);
+        int count = 0;
+        for (Product product : list) {
+            count += jdService.saveColor(product);
+            product.setRanking(2);
             productService.saveOrUpdate(product);
             SleepUtils.seconds(2);
         }

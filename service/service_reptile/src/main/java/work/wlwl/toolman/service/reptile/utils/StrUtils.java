@@ -120,4 +120,11 @@ public class StrUtils {
         return subStr(context, "【", "】");
     }
 
+    public static String[] getImgUrls(String context) {
+        return subStr(context, "imageList: [", "]").replaceAll("\"", "").split(",");
+    }
+
+    public static String getBrandId(String context) {
+        return subStr(context, "brand:", ",");
+    }
 }

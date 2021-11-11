@@ -47,14 +47,13 @@ public class FileController {
 
     @ApiOperation("网络文件上传")
     @GetMapping("upload")
-    public R upload(
+    public String upload(
             @ApiParam(value = "url", required = true)
             @RequestParam("url") String url,
 
             @ApiParam(value = "模块", required = true)
             @RequestParam("module") String module) {
-        String upload = fileService.upload(url, module);
-        return R.ok().message("上传成功").data("url", upload);
+        return fileService.upload(url, module);
     }
 
     @ApiOperation("文件删除")

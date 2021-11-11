@@ -27,7 +27,7 @@ public class ProductImg extends BaseEntity {
     @ApiModelProperty("产品id")
     private String productId;
 
-    @ApiModelProperty("产品id")
+    @ApiModelProperty("颜色id")
     private String colorId;
 
     @ApiModelProperty("图片地址")

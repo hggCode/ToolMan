@@ -25,11 +25,11 @@ public class genCode {
 //        要生成的表
         List<String> list=new ArrayList<>();
 //        list.add("reptile_brand");
-//        list.add("reptile_color");
+        list.add("reptile_product_color");
 //        list.add("reptile_edition");
 //        list.add("reptile_product");
 //        list.add("reptile_product_img");
-        list.add("reptile_property");
+//        list.add("reptile_property");
 //        忽略表的前缀
         String prefix="reptile_";
 

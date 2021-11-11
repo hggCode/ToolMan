@@ -6,11 +6,15 @@ import com.aliyun.oss.model.CannedAccessControlList;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import work.wlwl.toolman.service.base.entity.ResultCodeEnum;
+import work.wlwl.toolman.service.base.exception.GlobalException;
 import work.wlwl.toolman.service.oss.config.OssConfig;
 import work.wlwl.toolman.service.oss.service.FileService;
+import work.wlwl.toolman.service.oss.utils.WeChetSend;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
 
@@ -55,13 +59,12 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String upload(String url, String module) {
+        // 创建OSSClient实例。
+        OSS ossClient = this.init();
         try {
             //    读取公共文件
             String bucketName = OssConfig.getBucketName();
             String endpoint = OssConfig.getEndpoint();
-
-            // 创建OSSClient实例。
-            OSS ossClient = this.init();
             //判断 bucketName是否存在
             this.doesBucketExist(ossClient, bucketName);
 
@@ -71,20 +74,30 @@ public class FileServiceImpl implements FileService {
 
             String path = module + "/" + fileName + fileExtension;
 
+
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setRequestMethod("GET");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setUseCaches(false);
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(8000);
+
             // 填写网络流地址。
-            InputStream inputStream = new URL(url).openStream();
+            InputStream inputStream = conn.getInputStream();
 
             // 依次填写Bucket名称和Object完整路径（例如exampledir/exampleobject.txt）。Object完整路径中不能包含Bucket名称。
             ossClient.putObject(bucketName, path, inputStream);
 
-            // 关闭OSSClient。
-            ossClient.shutdown();
             return "https://" + bucketName + "." + endpoint + "/" + path;
         } catch (IOException e) {
             e.printStackTrace();
+            WeChetSend.send("嘎，oss又挂了","oss挂了"+e.getMessage());
+            throw new GlobalException(ResultCodeEnum.JD_CONNECT_ERROR);
+        } finally {
+            // 关闭OSSClient。
+            ossClient.shutdown();
         }
-
-        return "-1";
     }
 
 

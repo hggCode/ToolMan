@@ -13,14 +13,13 @@ import work.wlwl.toolman.service.base.entity.BaseEntity;
  * </p>
  *
  * @author hgg&fbb
- * @since 2021-11-01
+ * @since 2021-11-08
  */
 @Data
-
 @Accessors(chain = true)
-@TableName("reptile_color")
-@ApiModel(value = "Color对象", description = "")
-public class Color extends BaseEntity {
+@TableName("reptile_product_color")
+@ApiModel(value = "ProductColor对象", description = "")
+public class ProductColor extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,5 +28,6 @@ public class Color extends BaseEntity {
 
     @ApiModelProperty("颜色")
     private String color;
+
 
 }

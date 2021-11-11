@@ -1,6 +1,6 @@
 package work.wlwl.toolman.service.reptile.mapper;
 
-import work.wlwl.toolman.service.reptile.entity.Color;
+import work.wlwl.toolman.service.reptile.entity.ProductColor;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author hgg&fbb
- * @since 2021-11-01
+ * @since 2021-11-08
  */
-public interface ColorMapper extends BaseMapper<Color> {
+public interface ProductColorMapper extends BaseMapper<ProductColor> {
 
 }

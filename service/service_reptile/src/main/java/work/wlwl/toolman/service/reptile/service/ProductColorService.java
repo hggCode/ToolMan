@@ -1,6 +1,6 @@
 package work.wlwl.toolman.service.reptile.service;
 
-import work.wlwl.toolman.service.reptile.entity.Color;
+import work.wlwl.toolman.service.reptile.entity.ProductColor;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author hgg&fbb
- * @since 2021-11-01
+ * @since 2021-11-08
  */
-public interface ColorService extends IService<Color> {
+public interface ProductColorService extends IService<ProductColor> {
 
 }
