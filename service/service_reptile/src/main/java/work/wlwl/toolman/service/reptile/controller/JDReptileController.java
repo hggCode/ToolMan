@@ -21,7 +21,7 @@ import work.wlwl.toolman.service.reptile.utils.SleepUtils;
 import java.util.List;
 
 @RestController
-@RequestMapping("/reptile/jd")
+@RequestMapping("/api/reptile/jd")
 @Api("京东爬虫")
 public class JDReptileController {
 

@@ -15,3 +15,31 @@ spring:
         locator:
           enabled: true # gateway可以发现nacos中的微服务
       routes:
+        - id: service-cms
+          uri: lb://service-cms
+          predicates:
+            - Path=/user/**, /*/cms/**
+        - id: service-oss
+          uri: lb://service-oss
+          predicates:
+            - Path=/*/oss/**
+        - id: service-reptile
+          uri: lb://service-reptile
+          predicates:
+            - Path=/*/reptile/**
+        - id: service-sms
+          uri: lb://service-sms
+          predicates:
+            - Path=/*/sms/**
+        - id: service-statistics
+          uri: lb://service-statistics
+          predicates:
+            - Path=/*/statistics/**
+        - id: service-tm
+          uri: lb://service-tm
+          predicates:
+            - Path=/*/tm/**
+        - id: service-ucenter
+          uri: lb://service-ucenter
+          predicates:
+            - Path=/*/ucenter/**
