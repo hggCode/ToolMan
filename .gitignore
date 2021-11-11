@@ -1,3 +1,9 @@
 # Project exclude paths
 /common/service_base/target/
 /infrastructure/api_gateway/target/
+/service/service_ucenter/target/
+/service/service_oss/target/
+/service/service_reptile/target/
+/service/service_sms/target/
+/service/service_statistics/target/
+/service/service_tm/target/
