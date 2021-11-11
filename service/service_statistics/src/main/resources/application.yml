@@ -1,5 +1,5 @@
 server:
-  port: 8140
+  port: 8150
 spring:
   application:
     name: service-statistics

@@ -1,0 +1,12 @@
+server:
+  port: 8160
+spring:
+  application:
+    name: service-tm
+  cloud:
+    nacos:
+      discovery:
+        server-addr: wlwl.work:8848
+logging:
+  level:
+    com.atguigu.guli.service.edu.feign.OssFileService: debug #以什么级别监控哪个接口

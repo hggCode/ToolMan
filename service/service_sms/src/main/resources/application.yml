@@ -1,5 +1,5 @@
 server:
-  port: 8150
+  port: 8140
 spring:
   application:
     name: service-sms
